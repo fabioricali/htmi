@@ -2,20 +2,24 @@
 <html lang="en" xmlns:x-on="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>htmi -</title>
-    <script src="../../dist/htmi.dev.umd.js?15555"></script>
+    <title>htmi</title>
+    <script src="../../dist/htmi.dev.umd.js"></script>
+    <style>
+        :root {
+            color-scheme: dark;
+        }
+    </style>
 </head>
 <body>
-<div i-data="{ count: 0 }">
+<div i-scope="{ count: 0 }">
     <button i-on:click="count++">Increment</button>
     <span i-text="count"></span>
-    <span i-text="count"></span>
-    <div i-data="{ count: 10 }">
+    <div i-scope="{ count: 10 }">
         <button i-on:click="count++">Increment Inner</button>
         <span i-text="count"></span>
     </div>
 </div>
-<div i-data="{ count: 0 }">
+<div i-scope="{ count: 0 }">
     <button i-on:click="count++">Increment</button>
     <span i-text="count"></span>
 </div>

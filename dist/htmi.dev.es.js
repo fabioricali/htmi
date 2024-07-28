@@ -14,7 +14,7 @@ const domEvents= [
 ];
 
 const attributes = {
-    DATA: 'i-data',
+    SCOPE: 'i-scope',
     TEXT: 'i-text',
     ON: 'i-on'
 };
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateDom (node, scope) {
         node.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
-            if (node !== element.__x_scopeEl) return;
+            if (node.__x_scope !== getScope(element)) return;
             const expression = element.getAttribute(attributes.TEXT);
             updateText(element, expression, scope);
         });
@@ -44,22 +44,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function processNode(node) {
         let scope = {};
 
-        if (node.hasAttribute(attributes.DATA)) {
-            scope = evaluate(node, node.getAttribute(attributes.DATA));
-            node.__x_data = scope;  // Store scope in node for later use
+        if (node.hasAttribute(attributes.SCOPE)) {
+            scope = evaluate(node, node.getAttribute(attributes.SCOPE));
+            node.__x_scope = scope;  // Store scope in node for later use
             updateDom(node, scope);
         }
     }
 
     function getScope(element) {
-        return element.closest(`[${attributes.DATA}]`).__x_data
+        return element.closest(`[${attributes.SCOPE}]`).__x_scope
     }
 
-    document.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
-        element.__x_scopeEl = element.closest(`[${attributes.DATA}]`);
-    });
+    // document.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
+    //     element.__x_scopeEl = element.closest(`[${attributes.DATA}]`);
+    // });
 
-    document.querySelectorAll(`[${attributes.DATA}]`).forEach(el => {
+    document.querySelectorAll(`[${attributes.SCOPE}]`).forEach(el => {
         processNode(el);
     });
 
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     domEvents.forEach(eventName => {
         document.querySelectorAll(`[${attributes.ON}\\:${eventName}]`).forEach(element => {
             const expression = element.getAttribute(`${attributes.ON}:${eventName}`);
-            const node = element.closest(`[${attributes.DATA}]`);
+            const node = element.closest(`[${attributes.SCOPE}]`);
             const scope = getScope(element);
 
             element.addEventListener(eventName, () => {

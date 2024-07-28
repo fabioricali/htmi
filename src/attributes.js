@@ -1,5 +1,5 @@
 export const attributes = {
-    DATA: 'i-data',
+    SCOPE: 'i-scope',
     TEXT: 'i-text',
     ON: 'i-on'
 }

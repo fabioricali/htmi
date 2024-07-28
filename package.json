@@ -1,0 +1,14 @@
+{
+  "name": "htmi",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "production-build": "rollup --config scripts/production.js",
+    "develop-build": "rollup --watch --config scripts/develop.js"
+  },
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.19.1",
+    "rollup-plugin-version-injector": "^1.3.3"
+  }
+}

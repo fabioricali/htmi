@@ -42,13 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processNode(node) {
+        if (!node.hasAttribute(attributes.SCOPE)) return
         let scope = {};
 
-        if (node.hasAttribute(attributes.SCOPE)) {
-            scope = evaluate(node, node.getAttribute(attributes.SCOPE));
-            node.__x_scope = scope;  // Store scope in node for later use
-            updateDom(node, scope);
-        }
+        scope = evaluate(node, node.getAttribute(attributes.SCOPE));
+        node.__x_scope = scope;  // Store scope in node for later use
+        updateDom(node, scope);
     }
 
     function getScope(element) {

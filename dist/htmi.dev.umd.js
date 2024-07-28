@@ -107,6 +107,7 @@
 
         function updateDom (node) {
             node.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
+                console.log(element);
                 const expression = element.getAttribute(attributes.TEXT);
                 const parentScope = getScope(node);
                 const closestScope = getScope(element);

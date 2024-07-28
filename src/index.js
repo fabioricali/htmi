@@ -1,63 +1,62 @@
 import {domEvents} from "./domEvents.js";
+import {attributes} from "./attributes.js";
 
 
 document.addEventListener('DOMContentLoaded', () => {
 
-
-    const evaluate = (scope, expression) => {
+    function evaluate (scope, expression) {
         try {
             return new Function('with(this) { return ' + expression + ' }').call(scope);
         } catch (error) {
             console.error(`Error evaluating expression: ${expression}`, error);
         }
-    };
+    }
 
-    const updateText = (element, expression, scope) => {
+    function updateText (element, expression, scope) {
         element.innerText = evaluate(scope, expression);
-    };
+    }
 
-    const updateDom = (node, scope) => {
-        node.querySelectorAll('[x-text]').forEach(element => {
+    function updateDom (node, scope) {
+        node.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
             if (node !== element.__x_scopeEl) return;
-            const expression = element.getAttribute('x-text');
+            const expression = element.getAttribute(attributes.TEXT);
             updateText(element, expression, scope);
         });
-    };
+    }
 
     function processNode(node) {
         let scope = {};
 
-        if (node.hasAttribute('x-data')) {
-            scope = evaluate(node, node.getAttribute('x-data'));
+        if (node.hasAttribute(attributes.DATA)) {
+            scope = evaluate(node, node.getAttribute(attributes.DATA));
             node.__x_data = scope;  // Store scope in node for later use
-        } else if (node.__x_data) {
-            scope = node.__x_data;
+            updateDom(node, scope);
         }
-
-        updateDom(node, scope);
     }
 
-    document.querySelectorAll('[x-text]').forEach(element => {
-        element.__x_scopeEl = element.closest('[x-data]');
+    function getScope(element) {
+        return element.closest(`[${attributes.DATA}]`).__x_data
+    }
+
+    document.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
+        element.__x_scopeEl = element.closest(`[${attributes.DATA}]`);
     });
 
-    document.querySelectorAll('[x-data]').forEach(el => {
+    document.querySelectorAll(`[${attributes.DATA}]`).forEach(el => {
         processNode(el)
     });
 
+    // init events
     domEvents.forEach(eventName => {
-        document.querySelectorAll(`[x-on\\:${eventName}]`).forEach(element => {
-            if (!element.__x_event_attached) {  // Ensure event is attached only once
-                const expression = element.getAttribute(`x-on:${eventName}`);
-                const closestNode = element.closest('[x-data]');
-                const closestScope = closestNode.__x_data;
+        document.querySelectorAll(`[${attributes.ON}\\:${eventName}]`).forEach(element => {
+            const expression = element.getAttribute(`${attributes.ON}:${eventName}`);
+            const node = element.closest(`[${attributes.DATA}]`);
+            const scope = getScope(element);
 
-                element.addEventListener(eventName, () => {
-                    evaluate(closestScope, expression);
-                    updateDom(closestNode, closestScope);  // Update DOM after state change
-                });
-                element.__x_event_attached = true;  // Mark event as attached
-            }
+            element.addEventListener(eventName, () => {
+                evaluate(scope, expression);
+                updateDom(node, scope);  // Update DOM after state change
+            });
         });
     });
 });

@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>htmi -</title>
+    <script src="../../dist/htmi.dev.umd.js?15555"></script>
 </head>
 <body>
-
-<div x-data="{ count: 0 }">
-    <button x-on:click="count++">Increment</button>
-    <span x-text="count"></span>
-    <span x-text="count"></span>
-
-    <div x-data="{ count: 10 }">
-        <button x-on:click="count++">Increment Inner</button>
-        <span x-text="count"></span>
+<div i-data="{ count: 0 }">
+    <button i-on:click="count++">Increment</button>
+    <span i-text="count"></span>
+    <span i-text="count"></span>
+    <div i-data="{ count: 10 }">
+        <button i-on:click="count++">Increment Inner</button>
+        <span i-text="count"></span>
     </div>
 </div>
-<div x-data="{ count: 0 }">
-    <button x-on:click="count++">Increment</button>
-    <span x-text="count"></span>
+<div i-data="{ count: 0 }">
+    <button i-on:click="count++">Increment</button>
+    <span i-text="count"></span>
 </div>
-<script src="../../dist/htmi.dev.umd.js?15555"></script>
+
 </body>
 </html>

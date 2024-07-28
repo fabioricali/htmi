@@ -40,7 +40,7 @@
 
         function updateDom (node, scope) {
             node.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
-                if (node.__x_scope !== getScope(element)) return;
+                if (getScope(node) !== getScope(element)) return;
                 const expression = element.getAttribute(attributes.TEXT);
                 updateText(element, expression, scope);
             });
@@ -57,12 +57,10 @@
         }
 
         function getScope(element) {
+            if (element.__x_scope)
+                return element.__x_scope
             return element.closest(`[${attributes.SCOPE}]`).__x_scope
         }
-
-        // document.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
-        //     element.__x_scopeEl = element.closest(`[${attributes.DATA}]`);
-        // });
 
         document.querySelectorAll(`[${attributes.SCOPE}]`).forEach(el => {
             processNode(el);

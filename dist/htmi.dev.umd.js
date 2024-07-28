@@ -73,6 +73,24 @@
         return new Proxy(obj, createHandler());
     }
 
+    function checkProperty(obj, path) {
+        const properties = path.split('.');
+
+        function check(obj, index) {
+            if (index === properties.length) {
+                return true;
+            }
+
+            if (!obj || !obj.hasOwnProperty(properties[index])) {
+                return false;
+            }
+
+            return check(obj[properties[index]], index + 1);
+        }
+
+        return check(obj, 0);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
 
         function evaluate (scope, expression) {
@@ -87,26 +105,21 @@
             element.innerText = evaluate(scope, expression);
         }
 
-        function updateDom (node, result) {
+        function updateDom (node) {
             node.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
                 const expression = element.getAttribute(attributes.TEXT);
                 const parentScope = getScope(node);
                 const closestScope = getScope(element);
 
                 let scope;
-                if (typeof closestScope?.[expression] !== "undefined") {
-                    // console.log('a')
+                if (checkProperty(closestScope, expression)) {
                     scope = closestScope;
-                } else if (typeof parentScope?.[expression] !== "undefined") {
-                    // console.log('b')
+                } else if (checkProperty(parentScope, expression)) {
                     scope = parentScope;
                 } else {
-                    console.log('scope not found', 'expression', expression);
                     return
-                    //scope = closestScope
                 }
-                // console.log(scope)
-                // console.log(expression)
+
                 updateText(element, expression, scope);
             });
         }
@@ -117,9 +130,8 @@
 
             scope = evaluate(node, node.getAttribute(attributes.SCOPE));
             node.__x_scope = createObservableObject(scope, (change) => {
-                console.log(change);
                 updateDom(node);
-            });  // Store scope in node for later use
+            });
             updateDom(node);
         }
 

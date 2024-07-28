@@ -24,6 +24,55 @@
         ON: 'i-on'
     };
 
+    function createObservableObject(obj, callback) {
+        function isObject(val) {
+            return val !== null && typeof val === 'object';
+        }
+
+        function createHandler(path = []) {
+            return {
+                get(target, property, receiver) {
+                    const value = Reflect.get(target, property, receiver);
+                    if (isObject(value)) {
+                        return new Proxy(value, createHandler(path.concat(property)));
+                    }
+                    return value;
+                },
+                set(target, property, value, receiver) {
+                    const oldValue = target[property];
+                    const success = Reflect.set(target, property, value, receiver);
+                    if (success && oldValue !== value) {
+                        callback({
+                            type: 'set',
+                            target,
+                            property,
+                            oldValue,
+                            newValue: value,
+                            path: path.concat(property).join('.')
+                        });
+                    }
+                    return success;
+                },
+                deleteProperty(target, property) {
+                    const oldValue = target[property];
+                    const success = Reflect.deleteProperty(target, property);
+                    if (success) {
+                        callback({
+                            type: 'delete',
+                            target,
+                            property,
+                            oldValue,
+                            path: path.concat(property).join('.')
+                        });
+                    }
+                    return success;
+                }
+            };
+        }
+
+        return new Proxy(obj, createHandler());
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
 
         function evaluate (scope, expression) {
@@ -52,7 +101,9 @@
                     // console.log('b')
                     scope = parentScope;
                 } else {
+                    console.log('scope not found', 'expression', expression);
                     return
+                    //scope = closestScope
                 }
                 // console.log(scope)
                 // console.log(expression)
@@ -65,7 +116,10 @@
             let scope = {};
 
             scope = evaluate(node, node.getAttribute(attributes.SCOPE));
-            node.__x_scope = scope;  // Store scope in node for later use
+            node.__x_scope = createObservableObject(scope, (change) => {
+                console.log(change);
+                updateDom(node);
+            });  // Store scope in node for later use
             updateDom(node);
         }
 
@@ -83,14 +137,10 @@
         domEvents.forEach(eventName => {
             document.querySelectorAll(`[${attributes.ON}\\:${eventName}]`).forEach(element => {
                 const expression = element.getAttribute(`${attributes.ON}:${eventName}`);
-                const node = element.closest(`[${attributes.SCOPE}]`);
                 const scope = getScope(element);
 
                 element.addEventListener(eventName, () => {
-                    // console.log('dddddddddddddddddddddddddd', expression)
                     evaluate(scope, expression);
-                    // console.log('result', result)
-                    updateDom(node);  // Update DOM after state change
                 });
             });
         });

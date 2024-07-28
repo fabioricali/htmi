@@ -1,5 +1,6 @@
 import {domEvents} from "./domEvents.js";
 import {attributes} from "./attributes.js";
+import createObservableObject from "./createObservableObject.js";
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -29,7 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // console.log('b')
                 scope = parentScope
             } else {
+                console.log('scope not found', 'expression', expression)
                 return
+                //scope = closestScope
             }
             // console.log(scope)
             // console.log(expression)
@@ -42,7 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let scope = {};
 
         scope = evaluate(node, node.getAttribute(attributes.SCOPE));
-        node.__x_scope = scope;  // Store scope in node for later use
+        node.__x_scope = createObservableObject(scope, (change) => {
+            console.log(change)
+            updateDom(node);
+        });  // Store scope in node for later use
         updateDom(node);
     }
 
@@ -60,14 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
     domEvents.forEach(eventName => {
         document.querySelectorAll(`[${attributes.ON}\\:${eventName}]`).forEach(element => {
             const expression = element.getAttribute(`${attributes.ON}:${eventName}`);
-            const node = element.closest(`[${attributes.SCOPE}]`);
             const scope = getScope(element);
 
             element.addEventListener(eventName, () => {
-                // console.log('dddddddddddddddddddddddddd', expression)
-                let result = evaluate(scope, expression);
-                // console.log('result', result)
-                updateDom(node, result);  // Update DOM after state change
+                evaluate(scope, expression);
             });
         });
     });

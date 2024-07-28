@@ -38,10 +38,24 @@
             element.innerText = evaluate(scope, expression);
         }
 
-        function updateDom (node, scope) {
+        function updateDom (node, result) {
             node.querySelectorAll(`[${attributes.TEXT}]`).forEach(element => {
-                if (getScope(node) !== getScope(element)) return;
                 const expression = element.getAttribute(attributes.TEXT);
+                const parentScope = getScope(node);
+                const closestScope = getScope(element);
+
+                let scope;
+                if (typeof closestScope?.[expression] !== "undefined") {
+                    // console.log('a')
+                    scope = closestScope;
+                } else if (typeof parentScope?.[expression] !== "undefined") {
+                    // console.log('b')
+                    scope = parentScope;
+                } else {
+                    return
+                }
+                // console.log(scope)
+                // console.log(expression)
                 updateText(element, expression, scope);
             });
         }
@@ -52,7 +66,7 @@
 
             scope = evaluate(node, node.getAttribute(attributes.SCOPE));
             node.__x_scope = scope;  // Store scope in node for later use
-            updateDom(node, scope);
+            updateDom(node);
         }
 
         function getScope(element) {
@@ -73,8 +87,10 @@
                 const scope = getScope(element);
 
                 element.addEventListener(eventName, () => {
+                    // console.log('dddddddddddddddddddddddddd', expression)
                     evaluate(scope, expression);
-                    updateDom(node, scope);  // Update DOM after state change
+                    // console.log('result', result)
+                    updateDom(node);  // Update DOM after state change
                 });
             });
         });

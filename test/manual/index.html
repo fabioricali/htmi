@@ -11,12 +11,18 @@
     </style>
 </head>
 <body>
-<div i-scope="{ count: 0 }">
+<div i-scope="{ count: 0, count2: 0, inner: {count: 0} }">
     <button i-on:click="count++">Increment</button>
+    <button i-on:click="count2++">Increment2</button>
+    <button i-on:click="inner.count++">Increment inner count</button>
     <span i-text="count"></span>
     <div i-scope="{ count: 10 }">
         <button i-on:click="count++">Increment Inner</button>
         <span i-text="count"></span>
+        <br>
+        <span i-text="count2"></span>
+        <br>
+        <span i-text="inner.count"></span>
     </div>
 </div>
 <div i-scope="{ count: 0 }">

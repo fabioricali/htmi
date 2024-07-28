@@ -129,16 +129,16 @@
             let scope = {};
 
             scope = evaluate(node, node.getAttribute(attributes.SCOPE));
-            node.__x_scope = createObservableObject(scope, (change) => {
+            node.__i_scope = createObservableObject(scope, (change) => {
                 updateDom(node);
             });
             updateDom(node);
         }
 
         function getScope(element) {
-            if (element.__x_scope)
-                return element.__x_scope
-            return element.closest(`[${attributes.SCOPE}]`).__x_scope
+            if (element.__i_scope)
+                return element.__i_scope
+            return element.closest(`[${attributes.SCOPE}]`).__i_scope
         }
 
         document.querySelectorAll(`[${attributes.SCOPE}]`).forEach(el => {
